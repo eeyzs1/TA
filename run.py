@@ -1,6 +1,3 @@
-import requests
-import json
-import time
 import math
 import pandas as pd
 import numpy as np
@@ -65,11 +62,11 @@ def sma(prices,period=5):
     return sma
 
 def judge_sma(close_data):
-    ma5 = sma(close_data[-14:],5)
-    ma10 = sma(close_data[-19:],10)
-    ma15 = sma(close_data[-24:],15)
+    ma5 = sma(close_data[-9:],5)
+    ma10 = sma(close_data[-14:],10)
+    ma15 = sma(close_data[-19:],15)
     print(ma5)
-    day_ary = np.array(list(range(10)))
+    day_ary = np.array(list(range(5)))
     ma5_ary = np.array(ma5)
     cc_ma5 = np.corrcoef(day_ary, ma5_ary)[0,1]#correlation_coefficient
     ma10_ary = np.array(ma10)
@@ -79,11 +76,11 @@ def judge_sma(close_data):
     return cc_ma5 > 0 and cc_ma10 > 0 and cc_ma15 > 0
 
 def judge_ema(close_data):
-    ma5 = ema(close_data[-14:],5)
-    ma10 = ema(close_data[-19:],10)
-    ma15 = ema(close_data[-24:],15)
+    ma5 = ema(close_data[-9:],5)
+    ma10 = ema(close_data[-14:],10)
+    ma15 = ema(close_data[-19:],15)
     print(ma5)
-    day_ary = np.array(list(range(10)))
+    day_ary = np.array(list(range(5)))
     ma5_ary = np.array(ma5)
     cc_ma5 = np.corrcoef(day_ary, ma5_ary)[0,1]#correlation_coefficient
     ma10_ary = np.array(ma10)
