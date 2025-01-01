@@ -1,14 +1,28 @@
 
-import talib
+from talib import HT_DCPERIOD,HT_DCPHASE,HT_PHASOR,HT_SINE,HT_TRENDMODE
 
+def cycle_indicators_calculations(close):
+    ### HT_DCPERIOD - Hilbert Transform - Dominant Cycle Period
+    period = HT_DCPERIOD(close)
+    ### HT_DCPHASE - Hilbert Transform - Dominant Cycle Phase
+    real = HT_DCPHASE(close)
 
+    ### HT_PHASOR - Hilbert Transform - Phasor Components
+    inphase, quadrature = HT_PHASOR(close)
 
-# neg means downward trend, pos upward, 0 unrelated
-def calculate_overlap_for_tech(open, high, low, close):
-    neg_count = 0
-    pos_count = 0
-    neu_count = 0
-    integer = talib.CDL2CROWS(open, high, low, close)
-    print(type(integer))
-    print(integer.iloc[-1])
-    return integer
+    ### HT_SINE - Hilbert Transform - SineWave
+    sine, leadsine = HT_SINE(close)
+
+    ### HT_TRENDMODE - Hilbert Transform - Trend vs Cycle Mode,=0 is cycle, =1 is trend
+    integer = HT_TRENDMODE(close)
+
+    print("period~~~~~~~~~~~~~~~~")
+    print(period)
+    print("real~~~~~~~~~~~~~~~~")
+    print(real)
+    print("inphase@@@@@@@@@@@@@@")
+    print(inphase, quadrature )
+    print("sine$$$$$$$$$$$$$$$$$$$$$$")
+    print(sine, leadsine)
+    print("integer&&&&&&&&&&&&&&&&&&&&&&&&&")
+    print(integer)

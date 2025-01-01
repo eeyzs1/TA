@@ -1,14 +1,16 @@
 
-import talib
-
-
+from talib import  AVGPRICE,MEDPRICE,TYPPRICE,WCLPRICE
 
 # neg means downward trend, pos upward, 0 unrelated
-def calculate_overlap_for_tech(open, high, low, close):
-    neg_count = 0
-    pos_count = 0
-    neu_count = 0
-    integer = talib.CDL2CROWS(open, high, low, close)
-    print(type(integer))
-    print(integer.iloc[-1])
-    return integer
+def calculate_price(open, high, low, close):
+    # real = AVGPRICE(open, high, low, close)
+
+    ### MEDPRICE - Median Price
+    # real = MEDPRICE(high, low)
+
+    ### TYPPRICE - Typical Price
+    # real = TYPPRICE(high, low, close)
+
+    ### WCLPRICE - Weighted Close Price
+    # at this moment, seems only this id needed
+    return WCLPRICE(high, low, close)
