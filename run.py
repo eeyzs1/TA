@@ -9,6 +9,7 @@ from cycle_indicators import cycle_indicators_calculations
 from volatility_indicators import calculate_volatility_indicators
 from price_transform import calculate_price
 from momentum_indicators import calculate_momentum_indicators
+from volume_indicators import calculate_volume_indicators
 
 def run_kline_analysis():
     # 创建ArgumentParser对象
@@ -33,11 +34,14 @@ def run_kline_analysis():
     close_a_hist = stock_zh_a_hist_df["收盘"]
     high_a_hist = stock_zh_a_hist_df["最高"]
     low_a_hist = stock_zh_a_hist_df["最低"]
+    volume_a_hist = stock_zh_a_hist_df["成交量"]
+    
 
-    neg_count, pos_count = pattern_match(open_a_hist, high_a_hist, low_a_hist, close_a_hist)
-    print(neg_count,pos_count)
-    calculate_momentum_indicators(open_a_hist, high_a_hist, low_a_hist, close_a_hist)
-    # print(neg_count, pos_count)
+    # neg_count, pos_count = pattern_match(open_a_hist, high_a_hist, low_a_hist, close_a_hist)
+    # print(neg_count,pos_count)
+    # calculate_momentum_indicators(open_a_hist, high_a_hist, low_a_hist, close_a_hist)
+    calculate_volume_indicators(volume_a_hist, high_a_hist, low_a_hist, close_a_hist)
+    
     # print(stock_zh_a_hist_df)
 
     # unstable and hard to use, tested with data generated bad res, abandoned
