@@ -47,7 +47,7 @@ def run_kline_analysis():
     # neg_count, pos_count = pattern_match(open_a_hist, high_a_hist, low_a_hist, close_a_hist)
     # print(neg_count,pos_count)
 
-    calculate_momentum_indicators(open_a_hist, high_a_hist, low_a_hist, close_a_hist)
+    calculate_momentum_indicators(open_a_hist, high_a_hist, low_a_hist, close_a_hist, volume_a_hist)
 
     # turnaround_count, consistency_count = calculate_volume_indicators(volume_a_hist, high_a_hist, low_a_hist, close_a_hist)#max = 3
     # print(turnaround_count, consistency_count)
