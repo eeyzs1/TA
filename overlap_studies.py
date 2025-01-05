@@ -7,17 +7,9 @@ def calculate_overlap(high, low, close):
     sell_count = 0
     ### BBANDS - Bollinger Bands
     upperband, middleband, lowerband = BBANDS(close, timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
-    if close.iloc[-1] > middleband.iloc[-1] and close.iloc[-1] < upperband.iloc[-1]:
-        buy_count += 1
-    else:
-        sell_count += 1
-    
+
     ### DEMA - Double Exponential Moving Average
     dema = DEMA(close, timeperiod=7)
-    if close.iloc[-1] > dema.iloc[-1] and dema.iloc[-1] > dema.iloc[-2]:
-        buy_count += 1
-    else:
-        sell_count += 1
 
     # ### EMA - Exponential Moving Average
     # #NOTE: The ``EMA`` function has an unstable period.  
@@ -49,10 +41,6 @@ def calculate_overlap(high, low, close):
 
     ### SAR - Parabolic SAR
     sar = SAR(high, low, acceleration=0.02, maximum=0.2)
-    if close.iloc[-1] > sar.iloc[-1] and sar.iloc[-1] > sar.iloc[-2]:
-        buy_count += 1
-    else:
-        sell_count += 1
 
     ### SAREXT - Parabolic SAR - Extended
     # the extended parameters are too complex and effect is unsure, so abandoned
@@ -67,20 +55,38 @@ def calculate_overlap(high, low, close):
 
     ### TEMA - Triple Exponential Moving Average
     tema = TEMA(close, timeperiod=7)
-    if close.iloc[-1] > tema.iloc[-1] and tema.iloc[-1] > tema.iloc[-2]:
+
+    ### TRIMA - Triangular Moving Average
+    trima = TRIMA(close, timeperiod=7)
+
+    ### WMA - Weighted Moving Average
+    wma = WMA(close, timeperiod=7)
+
+    if close.iloc[-1] > middleband.iloc[-1] and close.iloc[-1] < upperband.iloc[-1]:
         buy_count += 1
     else:
         sell_count += 1
 
-    ### TRIMA - Triangular Moving Average
-    trima = TRIMA(close, timeperiod=7)
+    if close.iloc[-1] > dema.iloc[-1] and dema.iloc[-1] > dema.iloc[-2]:
+        buy_count += 1
+    else:
+        sell_count += 1
+
+    if close.iloc[-1] > sar.iloc[-1] and sar.iloc[-1] > sar.iloc[-2]:
+        buy_count += 1
+    else:
+        sell_count += 1
+    
+    if close.iloc[-1] > tema.iloc[-1] and tema.iloc[-1] > tema.iloc[-2]:
+        buy_count += 1
+    else:
+        sell_count += 1
+    
     if close.iloc[-1] > trima.iloc[-1] and trima.iloc[-1] > trima.iloc[-2]:
         buy_count += 1
     else:
         sell_count += 1
 
-    ### WMA - Weighted Moving Average
-    wma = WMA(close, timeperiod=7)
     if close.iloc[-1] > wma.iloc[-1] and wma.iloc[-1] > wma.iloc[-2]:
         buy_count += 1
     else:

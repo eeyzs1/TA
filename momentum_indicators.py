@@ -21,16 +21,15 @@ def calculate_momentum_indicators(open, high, low, close, volume):
     weak_count = 0
     strong_count = 0
     up_trend = 0
-    down_trend = 0
     ### ADX - Average Directional Movement Index
     # seems for efficiency, the author of talib.ADX didn't smooth the tr when get prevTR for later calculate +DI and -DI 
     # ADX的取值范围在0到100之间。
     # ADX值越高，表示市场趋势越强。一般来说，ADX值超过25表示市场趋势较强，超过50表示市场趋势非常强。
     # ADX值的上升或下降也可以提供趋势变化的信号。例如，如果ADX值逐渐上升至40以上，表明市场趋势明显增强；反之，如果ADX值低于20，则表示市场可能进入震荡期。
-    adx = ADX(high, low, close, timeperiod=7)#default timeperiod is 14,but code will almost double it as start id, so use a relatively small value to decrease calculation cost
+    # adx = ADX(high, low, close, timeperiod=7)#default timeperiod is 14,but code will almost double it as start id, so use a relatively small value to decrease calculation cost
 
-    # ### ADXR - Average Directional Movement Index Rating
-    adxr = ADXR(high, low, close, timeperiod=7)
+    # # ### ADXR - Average Directional Movement Index Rating
+    # adxr = ADXR(high, low, close, timeperiod=7)
 
     # ### APO - Absolute Price Oscillator
     apo = APO(close, fastperiod=4, slowperiod=7, matype=0)
@@ -168,25 +167,50 @@ def calculate_momentum_indicators(open, high, low, close, volume):
     fastkrsi, fastdrsi = STOCHRSI(close, timeperiod=14, fastk_period=5, fastd_period=3, fastd_matype=0)
 
     # ### TRIX - 1-day Rate-Of-Change (ROC) of a Triple Smooth EMA
-    # real = TRIX(real, timeperiod=30)
+    # EMA1是原始价格数据的指数移动平均。其计算公式通常基于价格数据的加权平均值，权重随着距离当前时间点的远近而递减。具体公式可能因软件或平台而异，但一般形式为：EMA1 = (今日收盘价 - 昨日EMA1) × K + 昨日EMA1，其中K为平滑系数，与所选周期长度有关。
+    # optInK_1  = 2 / (optInTimePeriod + 1)
+    # 计算第二次指数移动平均（EMA2）：
+    # EMA2是对EMA1的指数移动平均。其计算方法与EMA1相同，只是输入数据变为了EMA1的值。
+    # 计算第三次指数移动平均（EMA3）：
+    # EMA3是对EMA2的指数移动平均。同样地，其计算方法与EMA1和EMA2相同，只是输入数据变为了EMA2的值。
+    # 计算TRIX：
+    # TRIX是EMA3的百分比变化，用于突出趋势的转折点。其计算公式为：TRIX = (今日EMA3 - 昨日EMA3) / 昨日EMA3 × 100%。
+    # trix = TRIX(close, timeperiod=15)
 
     # ### ULTOSC - Ultimate Oscillator
-    # real = ULTOSC(high, low, close, timeperiod1=7, timeperiod2=14, timeperiod3=28)
+    # 一、选择移动平均线周期
+    # 首先，需要选择三个不同周期的移动平均线。通常，这些周期被设定为7、14和28，但也可以根据个人偏好或市场特性进行调整。
+    # 二、计算真实范围（True Range）
+    # 对于每个选定的周期，需要计算其真实范围（True Range）。真实范围是以下三者中的最大值：
+    # 当前周期的高价和低价之差。
+    # 当前周期的高价和前一个周期的收盘价之差的绝对值。
+    # 当前周期的低价和前一个周期的收盘价之差的绝对值。
+    # 三、计算移动平均（Average1）
+    # 接下来，对每个周期的真实范围进行移动平均计算。这里分别使用7个周期、14个周期和28个周期的移动平均线来得到三个Average1值。
+    # 四、计算ULTOSC值
+    # 最后，使用以下公式来计算ULTOSC指标的值：
+    # ULTOSC = [(4 * Average1_period1) + (2 * Average1_period2) + Average1_period3] / (4 + 2 + 1)
+
+    # 其中，Average1_period1、Average1_period2和Average1_period3分别代表7个周期、14个周期和28个周期的移动平均值。
+    # ultosc = ULTOSC(high, low, close, timeperiod1=7, timeperiod2=14, timeperiod3=28)
 
     # ### WILLR - Williams' %R
-    # real = WILLR(high, low, close, timeperiod=14)
+    # 确定观察期：首先确定一个观察期，通常为14天（或其他天数，如7天、20天等），这个观察期用于计算最高价、最低价和收盘价。
+    # 计算周期内的最高价和最低价：在观察期内，找出最高价（Hn）和最低价（Ln）。
+    # 计算当日收盘价与周期内最高价和最低价的相对位置：使用公式（Hn-Ct）/（Hn-Ln）×-100来计算，其中Ct为当日的收盘价。这个公式反映了当日收盘价在观察期内价格波动范围中的相对位置。
+    willr = WILLR(high, low, close, timeperiod=14)
 
-    if adx.iloc[-1] > 20:
-        if adx.iloc[-1] < adx.iloc[-2]:
-            weak_count += 1
-        else:
-            strong_count += 1
+    # if adx.iloc[-1] > 20:
+    #     if adx.iloc[-1] < adx.iloc[-2]:
+    #         weak_count += 1
+    #     else:
+    #         strong_count += 1
 
-    if adxr.iloc[-1] > 20:
-        if adxr.iloc[-1] < adxr.iloc[-2]:
-            weak_count += 1
-        else:
-            strong_count += 1
+    # if adxr.iloc[-1] > 20:
+    #     if adxr.iloc[-1] < adxr.iloc[-2]:
+    #         weak_count += 1
+    #     else:
+    #         strong_count += 1
 
     if apo.iloc[-1] > 0:
         up_trend += 1
@@ -265,34 +289,11 @@ def calculate_momentum_indicators(open, high, low, close, volume):
         else:
             strong_count += 1
 
+    if willr.iloc[-1] < -80:
+        up_trend += 1
+        if willr.iloc[-1] > willr.iloc[-2]:
+            weak_count += 1
+        else:
+            strong_count += 1
 
-    print("adx",adx)
-    print("adxr",adxr)
-    print("apo",apo)
-    print("aroonup",aroonup)
-    print("aroondown",aroondown)
-    print("bop",bop)
-    print("cci",cci)
-    print("cmo",cmo)
-    print("diff")
-    print(diff)
-    print("dea")
-    print(dea)
-    print("macdhist")
-    print(macdhist)
-    print("mfi")
-    print(mfi)
-    print("rsi")
-    print(rsi)
-    print("slowk")
-    print(slowk)
-    print("slowd")
-    print(slowd)
-    print("fastk")
-    print(fastk)
-    print("fastd")
-    print(fastd)
-
-
-
-    return up_trend, down_trend, weak_count, strong_count
+    return up_trend, weak_count, strong_count
