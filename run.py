@@ -11,7 +11,7 @@ from price_transform import calculate_price
 from momentum_indicators import calculate_momentum_indicators
 from volume_indicators import calculate_volume_indicators
 from overlap_studies import calculate_overlap
-
+from stock_collection import stock_classes
 
 def run_kline_analysis():
     # 创建ArgumentParser对象
@@ -30,6 +30,9 @@ def run_kline_analysis():
     # 格式化日期为YYYYMMDD格式
     formatted_today = today.strftime('%Y%m%d')
     formatted_start_day = start_day.strftime('%Y%m%d')
+
+    for key in stock_classes.keys():
+        stock_code = stock_classes.get(key) 
 
     stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol="000001", period="daily", start_date=formatted_start_day, end_date=formatted_today, adjust="")
     open_a_hist = stock_zh_a_hist_df["开盘"]
