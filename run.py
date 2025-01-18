@@ -10,10 +10,10 @@ from volume_indicators import calculate_volume_indicators
 from overlap_studies import calculate_overlap
 from stock_collection import stock_classes
 import multiprocessing
-import os
 import threading
 import queue
 import psutil
+import time
 
 def run_kline_analysis(stock_zh_a_hist_df):
     open_a_hist = stock_zh_a_hist_df["开盘"]
@@ -22,19 +22,17 @@ def run_kline_analysis(stock_zh_a_hist_df):
     low_a_hist = stock_zh_a_hist_df["最低"]
     volume_a_hist = stock_zh_a_hist_df["成交量"]
 
-    suggested = True
-
-    # buy_count,sell_count = calculate_overlap(high_a_hist, low_a_hist, close_a_hist)
+    buy_count,sell_count = calculate_overlap(high_a_hist, low_a_hist, close_a_hist)
     # print(buy_count,sell_count)
 
-    # neg_count, pos_count = pattern_match(open_a_hist, high_a_hist, low_a_hist, close_a_hist)
+    neg_count, pos_count = pattern_match(open_a_hist, high_a_hist, low_a_hist, close_a_hist)
     # print(neg_count,pos_count)
 
     up_trend, weak_count, strong_count = calculate_momentum_indicators(open_a_hist, high_a_hist, low_a_hist, close_a_hist, volume_a_hist)
 
     # print(up_trend, weak_count, strong_count)
 
-    # turnaround_count, consistency_count = calculate_volume_indicators(volume_a_hist, high_a_hist, low_a_hist, close_a_hist)#max = 3
+    turnaround_count, consistency_count = calculate_volume_indicators(volume_a_hist, high_a_hist, low_a_hist, close_a_hist)#max = 3
     # print(turnaround_count, consistency_count)
 
     # print(stock_zh_a_hist_df)
@@ -44,26 +42,28 @@ def run_kline_analysis(stock_zh_a_hist_df):
     # res = cycle_indicators_calculations(np.array([0.0 if i % 2 == 0 else 1.0 for i in range(100)]))
     # res = cycle_indicators_calculations(np.array([np.sin(np.pi * i/2)+1 for i in range(100)]))
 
-    # at this moment, seems natr is enough for volatility judgement
+    # # at this moment, seems natr is enough for volatility judgement
     # natr = calculate_volatility_indicators(high_a_hist, low_a_hist, close_a_hist)#higher, the greater risk
     # weighted_close_prices = calculate_price(open_a_hist, high_a_hist, low_a_hist, close_a_hist) #judge price trend
     # print("The Natr values are:")
-    # # print(natr)
+    # print(natr)
     # print("The weighted_close_prices are:")
     # print(weighted_close_prices)
-
-    return suggested,[up_trend, weak_count, strong_count]
+    if buy_count > sell_count and pos_count > neg_count and up_trend > 0 and (turnaround_count + consistency_count) > 0:
+        return True,[buy_count,sell_count,neg_count, pos_count,up_trend, weak_count, strong_count,turnaround_count, consistency_count]
+    else:
+        return False, None
     
 def stock_data_getter(stock_codes, formatted_start_day, formatted_today, data_queue):
     for stock_code in stock_codes:
         stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stock_code, period="daily", start_date=formatted_start_day, end_date=formatted_today, adjust="")
         if stock_zh_a_hist_df.empty:
-            print(stock_code)
+            print("wrong code:",stock_code)
         else:
             data_queue.put((stock_code, stock_zh_a_hist_df))
 
 
-def collect_and_analyze_data(stock_codes, one_cpu_length, formatted_start_day, formatted_today, res_queue):
+def collect_and_analyze_data(stock_codes, one_cpu_length, formatted_start_day, formatted_today, lock):
     threads = []
     data_queue = queue.Queue()
 
@@ -76,15 +76,33 @@ def collect_and_analyze_data(stock_codes, one_cpu_length, formatted_start_day, f
         t.start()
  
     for t in threads:
-        t.join()
+        t.join(timeout=10)
     
-    while not data_queue.empty():
-        stock_code, stock_data = data_queue.get()
-        suggested, res = run_kline_analysis(stock_data)
-        if suggested:
-            res_queue.put((stock_code, res))
-
-    
+    print("stock code:",stock_codes[0],"data collection finished:", time.time())
+    res_ls = []
+    while True:
+        try:
+            stock_code, stock_data = data_queue.get_nowait()
+            # data_queue.task_done()
+            print("got code:",stock_code)
+            suggested, res = run_kline_analysis(stock_data)
+            if suggested:
+                res_ls.append(res)
+        except Exception as e:
+            print("the exception is:",e)
+            print("stock code:",stock_codes[0],"data calculation finished:", time.time())
+            with lock:
+                    with open('today_suggestions.txt', 'a', encoding='utf-8') as today_suggestions,open('history_suggestions.txt', 'a', encoding='utf-8') as history_suggestions:
+                        for result in res_ls:
+                            [buy_count,sell_count,neg_count, pos_count,up_trend, weak_count, strong_count,turnaround_count, consistency_count] = result
+                            today_suggestions.write(str(stock_code) + " ")
+                            words = ["stock_code:",str(stock_code), "\n",\
+                                    "buy_count:", str(buy_count),"sell_count:", str(sell_count), "neg_count:", str(neg_count), "pos_count:", str(pos_count), "\n", \
+                                    "up_trend:", str(up_trend), "weak_count:", str(weak_count), "strong_count:", str(strong_count), "\n", \
+                                    "turnaround_count:", str(turnaround_count), "consistency_count:", str(consistency_count), "\n"]
+                            sentence = " ".join(words)
+                            history_suggestions.write(sentence)
+            return
 
 if __name__ == '__main__':
     # 创建ArgumentParser对象
@@ -104,10 +122,10 @@ if __name__ == '__main__':
     formatted_today = today.strftime('%Y%m%d')
     formatted_start_day = start_day.strftime('%Y%m%d')
 
-    manager = multiprocessing.Manager()
+    with open('today_suggestions.txt', 'a', encoding='utf-8') as today_suggestions,open('history_suggestions.txt', 'a', encoding='utf-8') as history_suggestions:
+        today_suggestions.write(formatted_today)
+        history_suggestions.write(formatted_today)
     lock = multiprocessing.Lock()
-    res_queue = multiprocessing.Queue()
-
     total_len = 0
     physical_cpus = psutil.cpu_count(logical=False)#多核CPU：对于多核CPU，线程数可以设置为“CPU核心数 × (1 + I/O计算耗时 / CPU计算耗时)”,简便起见直接用cpu核心数
     for value_list in stock_classes.values():
@@ -115,20 +133,17 @@ if __name__ == '__main__':
 
     one_cpu_length = int(total_len/physical_cpus)
 
+    print("process start:",time.time())
+
     for key in stock_classes.keys():
         processes = []
-        p = multiprocessing.Process(target=collect_and_analyze_data, args=(stock_classes[key], one_cpu_length, formatted_start_day, formatted_today, res_queue))
+        p = multiprocessing.Process(target=collect_and_analyze_data, args=(stock_classes[key], one_cpu_length, formatted_start_day, formatted_today, lock))
         processes.append(p)
         p.start()
 
     for p in processes:
         p.join()
 
-    while not res_queue.empty():
-        (stock_code, res) = res_queue.get()
-        # print("hello"+stock_code)
+    print("process finished:",time.time())
 
-    with open('results.txt', 'a', encoding='utf-8') as output_file:
-        output_file.write("sth")
-
-
+    

@@ -1,0 +1,76 @@
+20250118stock_code: 301221 
+ buy_count: 4 sell_count: 2 neg_count: 0 pos_count: 1 
+ up_trend: 10 weak_count: 5 strong_count: 5 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 301221 
+ buy_count: 5 sell_count: 1 neg_count: 0 pos_count: 1 
+ up_trend: 10 weak_count: 5 strong_count: 5 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 300953 
+ buy_count: 6 sell_count: 0 neg_count: 0 pos_count: 5 
+ up_trend: 10 weak_count: 4 strong_count: 6 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 300953 
+ buy_count: 6 sell_count: 0 neg_count: 0 pos_count: 5 
+ up_trend: 10 weak_count: 4 strong_count: 6 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 300953 
+ buy_count: 6 sell_count: 0 neg_count: 0 pos_count: 5 
+ up_trend: 8 weak_count: 2 strong_count: 6 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 300953 
+ buy_count: 6 sell_count: 0 neg_count: 0 pos_count: 2 
+ up_trend: 10 weak_count: 4 strong_count: 6 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 300953 
+ buy_count: 4 sell_count: 2 neg_count: 0 pos_count: 1 
+ up_trend: 7 weak_count: 4 strong_count: 3 
+ turnaround_count: 1 consistency_count: 1 
+stock_code: 002354 
+ buy_count: 5 sell_count: 1 neg_count: 0 pos_count: 1 
+ up_trend: 9 weak_count: 4 strong_count: 5 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 002249 
+ buy_count: 5 sell_count: 1 neg_count: 1 pos_count: 2 
+ up_trend: 8 weak_count: 4 strong_count: 4 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 002241 
+ buy_count: 5 sell_count: 1 neg_count: 0 pos_count: 1 
+ up_trend: 10 weak_count: 5 strong_count: 5 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 002241 
+ buy_count: 5 sell_count: 1 neg_count: 0 pos_count: 1 
+ up_trend: 9 weak_count: 5 strong_count: 4 
+ turnaround_count: 1 consistency_count: 2 
+stock_code: 002241 
+ buy_count: 6 sell_count: 0 neg_count: 0 pos_count: 1 
+ up_trend: 10 weak_count: 5 strong_count: 5 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 002241 
+ buy_count: 6 sell_count: 0 neg_count: 0 pos_count: 2 
+ up_trend: 10 weak_count: 6 strong_count: 4 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 002241 
+ buy_count: 4 sell_count: 2 neg_count: 0 pos_count: 2 
+ up_trend: 9 weak_count: 6 strong_count: 3 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 002241 
+ buy_count: 5 sell_count: 1 neg_count: 0 pos_count: 1 
+ up_trend: 11 weak_count: 5 strong_count: 6 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 002241 
+ buy_count: 5 sell_count: 1 neg_count: 0 pos_count: 2 
+ up_trend: 10 weak_count: 4 strong_count: 6 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 002241 
+ buy_count: 6 sell_count: 0 neg_count: 0 pos_count: 2 
+ up_trend: 9 weak_count: 5 strong_count: 4 
+ turnaround_count: 1 consistency_count: 3 
+stock_code: 002241 
+ buy_count: 4 sell_count: 2 neg_count: 0 pos_count: 1 
+ up_trend: 8 weak_count: 4 strong_count: 4 
+ turnaround_count: 1 consistency_count: 0 
+stock_code: 002241 
+ buy_count: 4 sell_count: 2 neg_count: 0 pos_count: 1 
+ up_trend: 8 weak_count: 4 strong_count: 4 
+ turnaround_count: 1 consistency_count: 3 
