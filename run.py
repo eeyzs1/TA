@@ -1,6 +1,3 @@
-import math
-import pandas as pd
-import numpy as np
 import akshare as ak
 from datetime import datetime, timedelta
 import argparse
@@ -12,37 +9,20 @@ from momentum_indicators import calculate_momentum_indicators
 from volume_indicators import calculate_volume_indicators
 from overlap_studies import calculate_overlap
 from stock_collection import stock_classes
+import multiprocessing
+import os
+import threading
+import queue
+import psutil
 
-def run_kline_analysis():
-    # 创建ArgumentParser对象
-    parser = argparse.ArgumentParser(description="user input")
-
-    # 添加参数
-    # parser.add_argument("positional_arg", help="位置参数")
-    # print(f"位置参数: {args.positional_arg}")
-    parser.add_argument("--datedelta", "-o", type=int, default=32, help="日期范围范围")#default to ensue below judgement can get not NaN value
-    # 解析参数
-    args = parser.parse_args()
-
-    today = datetime.now()
-    start_day = today - timedelta(days=args.datedelta)
-    
-    # 格式化日期为YYYYMMDD格式
-    formatted_today = today.strftime('%Y%m%d')
-    formatted_start_day = start_day.strftime('%Y%m%d')
-
-    for key in stock_classes.keys():
-        stock_code = stock_classes.get(key) 
-
-    stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol="000001", period="daily", start_date=formatted_start_day, end_date=formatted_today, adjust="")
+def run_kline_analysis(stock_zh_a_hist_df):
     open_a_hist = stock_zh_a_hist_df["开盘"]
     close_a_hist = stock_zh_a_hist_df["收盘"]
     high_a_hist = stock_zh_a_hist_df["最高"]
     low_a_hist = stock_zh_a_hist_df["最低"]
     volume_a_hist = stock_zh_a_hist_df["成交量"]
-    
-    with open('results.txt', 'a', encoding='utf-8') as output_file:
-        output_file.write("sth")
+
+    suggested = True
 
     # buy_count,sell_count = calculate_overlap(high_a_hist, low_a_hist, close_a_hist)
     # print(buy_count,sell_count)
@@ -52,7 +32,7 @@ def run_kline_analysis():
 
     up_trend, weak_count, strong_count = calculate_momentum_indicators(open_a_hist, high_a_hist, low_a_hist, close_a_hist, volume_a_hist)
 
-    print(up_trend, weak_count, strong_count)
+    # print(up_trend, weak_count, strong_count)
 
     # turnaround_count, consistency_count = calculate_volume_indicators(volume_a_hist, high_a_hist, low_a_hist, close_a_hist)#max = 3
     # print(turnaround_count, consistency_count)
@@ -71,7 +51,84 @@ def run_kline_analysis():
     # # print(natr)
     # print("The weighted_close_prices are:")
     # print(weighted_close_prices)
+
+    return suggested,[up_trend, weak_count, strong_count]
+    
+def stock_data_getter(stock_codes, formatted_start_day, formatted_today, data_queue):
+    for stock_code in stock_codes:
+        stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stock_code, period="daily", start_date=formatted_start_day, end_date=formatted_today, adjust="")
+        if stock_zh_a_hist_df.empty:
+            print(stock_code)
+        else:
+            data_queue.put((stock_code, stock_zh_a_hist_df))
+
+
+def collect_and_analyze_data(stock_codes, one_cpu_length, formatted_start_day, formatted_today, res_queue):
+    threads = []
+    data_queue = queue.Queue()
+
+    chunked_list = [stock_codes[i:i + one_cpu_length] for i in range(0, len(stock_codes), one_cpu_length)]
+
+    # collect data
+    for i in chunked_list:
+        t = threading.Thread(target=stock_data_getter, args=(i, formatted_start_day, formatted_today, data_queue))
+        threads.append(t)
+        t.start()
+ 
+    for t in threads:
+        t.join()
+    
+    while not data_queue.empty():
+        stock_code, stock_data = data_queue.get()
+        suggested, res = run_kline_analysis(stock_data)
+        if suggested:
+            res_queue.put((stock_code, res))
+
     
 
 if __name__ == '__main__':
-    run_kline_analysis()
+    # 创建ArgumentParser对象
+    parser = argparse.ArgumentParser(description="user input")
+
+    # 添加参数
+    # parser.add_argument("positional_arg", help="位置参数")
+    # print(f"位置参数: {args.positional_arg}")
+    parser.add_argument("--datedelta", "-o", type=int, default=32, help="日期范围范围")#default to ensue below judgement can get not NaN value
+    # 解析参数
+    args = parser.parse_args()
+
+    today = datetime.now()
+    start_day = today - timedelta(days=args.datedelta)
+    
+    # 格式化日期为YYYYMMDD格式
+    formatted_today = today.strftime('%Y%m%d')
+    formatted_start_day = start_day.strftime('%Y%m%d')
+
+    manager = multiprocessing.Manager()
+    lock = multiprocessing.Lock()
+    res_queue = multiprocessing.Queue()
+
+    total_len = 0
+    physical_cpus = psutil.cpu_count(logical=False)#多核CPU：对于多核CPU，线程数可以设置为“CPU核心数 × (1 + I/O计算耗时 / CPU计算耗时)”,简便起见直接用cpu核心数
+    for value_list in stock_classes.values():
+        total_len += len(value_list)
+
+    one_cpu_length = int(total_len/physical_cpus)
+
+    for key in stock_classes.keys():
+        processes = []
+        p = multiprocessing.Process(target=collect_and_analyze_data, args=(stock_classes[key], one_cpu_length, formatted_start_day, formatted_today, res_queue))
+        processes.append(p)
+        p.start()
+
+    for p in processes:
+        p.join()
+
+    while not res_queue.empty():
+        (stock_code, res) = res_queue.get()
+        # print("hello"+stock_code)
+
+    with open('results.txt', 'a', encoding='utf-8') as output_file:
+        output_file.write("sth")
+
+
