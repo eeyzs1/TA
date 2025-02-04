@@ -14,6 +14,8 @@ import threading
 import queue
 import psutil
 import time
+from stock_codes_reader import read_stock_data
+from stock_codes_acquirer import acquire_stock_data
 
 def run_kline_analysis(stock_zh_a_hist_df):
     open_a_hist = stock_zh_a_hist_df["开盘"]
@@ -123,8 +125,8 @@ if __name__ == '__main__':
     formatted_start_day = start_day.strftime('%Y%m%d')
 
     with open('today_suggestions.txt', 'a', encoding='utf-8') as today_suggestions,open('history_suggestions.txt', 'a', encoding='utf-8') as history_suggestions:
-        today_suggestions.write(formatted_today)
-        history_suggestions.write(formatted_today)
+        today_suggestions.write(formatted_today + "!!!!!!!!~~~~~~~~~~~~~~\n")
+        history_suggestions.write(formatted_today + "!!!!!!!!!!!~~~~~~~~~~~~\n")
     lock = multiprocessing.Lock()
     total_len = 0
     physical_cpus = psutil.cpu_count(logical=False)#多核CPU：对于多核CPU，线程数可以设置为“CPU核心数 × (1 + I/O计算耗时 / CPU计算耗时)”,简便起见直接用cpu核心数
@@ -134,10 +136,11 @@ if __name__ == '__main__':
     one_cpu_length = int(total_len/physical_cpus)
 
     print("process start:",time.time())
-
-    for key in stock_classes.keys():
+    acquire_stock_data()
+    stock_data = read_stock_data()
+    for key in stock_data.keys():
         processes = []
-        p = multiprocessing.Process(target=collect_and_analyze_data, args=(stock_classes[key], one_cpu_length, formatted_start_day, formatted_today, lock))
+        p = multiprocessing.Process(target=collect_and_analyze_data, args=(stock_data[key]["code"].tolist(), one_cpu_length, formatted_start_day, formatted_today, lock))
         processes.append(p)
         p.start()
 
