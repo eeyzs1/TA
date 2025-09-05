@@ -16,6 +16,7 @@ import psutil
 import time
 from stock_codes_reader import read_stock_data
 from stock_codes_acquirer import acquire_stock_data
+from concurrent.futures  import ThreadPoolExecutor
 
 def run_kline_analysis(stock_zh_a_hist_df):
     open_a_hist = stock_zh_a_hist_df["开盘"]
@@ -66,44 +67,58 @@ def stock_data_getter(stock_codes, formatted_start_day, formatted_today, data_qu
 
 
 def collect_and_analyze_data(stock_codes, one_cpu_length, formatted_start_day, formatted_today, lock):
-    threads = []
+    # threads = []
     data_queue = queue.Queue()
 
     chunked_list = [stock_codes[i:i + one_cpu_length] for i in range(0, len(stock_codes), one_cpu_length)]
 
-    # collect data
-    for i in chunked_list:
-        t = threading.Thread(target=stock_data_getter, args=(i, formatted_start_day, formatted_today, data_queue))
-        threads.append(t)
-        t.start()
+    # # collect data
+    # for i in chunked_list:
+    #     t = threading.Thread(target=stock_data_getter, args=(i, formatted_start_day, formatted_today, data_queue))
+    #     threads.append(t)
+    #     t.start()
  
-    for t in threads:
-        t.join(timeout=10)
+    # for t in threads:
+    #     t.join(timeout=10)
+ 
+    with ThreadPoolExecutor(max_workers=len(chunked_list)) as executor:
+        futures = [
+            executor.submit(stock_data_getter,  chunk, formatted_start_day, formatted_today, data_queue)
+            for chunk in chunked_list
+        ]
+        for future in futures:
+            try:
+                future.result() 
+            except Exception as e:
+                print("Error in thread:", e)
     
     print("stock code:",stock_codes[0],"data collection finished:", time.time())
     res_ls = []
-    while True:
+    while not data_queue.empty(): 
         try:
             stock_code, stock_data = data_queue.get_nowait()
             # data_queue.task_done()
             print("got code:",stock_code)
             suggested, res = run_kline_analysis(stock_data)
             if suggested:
-                res_ls.append(res)
+                res_ls.append((stock_code, res))
         except Exception as e:
             print("the exception is:",e)
             print("stock code:",stock_codes[0],"data calculation finished:", time.time())
             with lock:
-                    with open('today_suggestions.txt', 'a', encoding='utf-8') as today_suggestions,open('history_suggestions.txt', 'a', encoding='utf-8') as history_suggestions:
-                        for result in res_ls:
-                            [buy_count,sell_count,neg_count, pos_count,up_trend, weak_count, strong_count,turnaround_count, consistency_count] = result
-                            today_suggestions.write(str(stock_code) + " ")
-                            words = ["stock_code:",str(stock_code), "\n",\
-                                    "buy_count:", str(buy_count),"sell_count:", str(sell_count), "neg_count:", str(neg_count), "pos_count:", str(pos_count), "\n", \
-                                    "up_trend:", str(up_trend), "weak_count:", str(weak_count), "strong_count:", str(strong_count), "\n", \
-                                    "turnaround_count:", str(turnaround_count), "consistency_count:", str(consistency_count), "\n"]
-                            sentence = " ".join(words)
-                            history_suggestions.write(sentence)
+                with open('today_suggestions.txt', 'a', encoding='utf-8') as today_suggestions,open('history_suggestions.txt', 'a', encoding='utf-8') as history_suggestions:
+                    for stock_code, result in res_ls:
+                        [buy_count,sell_count,neg_count, pos_count,up_trend, weak_count, strong_count,turnaround_count, consistency_count] = result
+                        today_suggestions.write(str(stock_code) + " ")
+                        words = f"""
+                        stock_code: {stock_code}
+                        buy_count: {buy_count} sell_count: {sell_count} neg_count: {neg_count} pos_count: {pos_count}
+                        up_trend: {up_trend} weak_count: {weak_count} strong_count: {strong_count}
+                        turnaround_count: {turnaround_count} consistency_count: {consistency_count}
+                        \n
+                        """
+                        sentence = " ".join(words)
+                        history_suggestions.write(sentence)
             return
 
 if __name__ == '__main__':
@@ -124,7 +139,7 @@ if __name__ == '__main__':
     formatted_today = today.strftime('%Y%m%d')
     formatted_start_day = start_day.strftime('%Y%m%d')
 
-    with open('today_suggestions.txt', 'a', encoding='utf-8') as today_suggestions,open('history_suggestions.txt', 'a', encoding='utf-8') as history_suggestions:
+    with open('today_suggestions.txt', 'w', encoding='utf-8') as today_suggestions,open('history_suggestions.txt', 'a', encoding='utf-8') as history_suggestions:
         today_suggestions.write(formatted_today + "!!!!!!!!~~~~~~~~~~~~~~\n")
         history_suggestions.write(formatted_today + "!!!!!!!!!!!~~~~~~~~~~~~\n")
     lock = multiprocessing.Lock()

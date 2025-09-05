@@ -68,13 +68,18 @@ def calculate_momentum_indicators(open, high, low, close, volume):
     # DIF线（差离值线）、DEA线（信号线）和MACD柱状图。DIF线是短期EMA（指数移动平均值）与长期EMA的差值，DEA线是DIF线的EMA，而MACD柱状图则是DIF线与DEA线之间的差值乘以2得到的。
     diff, dea, macdhist = MACD(close, fastperiod=3, slowperiod=12, signalperiod=7)
     
-    # ### MACDEXT - MACD with controllable MA type
+    # ### MACDEXT - MACD with controllable MA type， macdhist = (DIF - DEA) here, negligence or laziness of the programmer, does't matter
     # macd, macdsignal, macdhist = MACDEXT(real, fastperiod=12, fastmatype=0, slowperiod=26, slowmatype=0, signalperiod=9, signalmatype=0)
 
     # ### MACDFIX - Moving Average Convergence/Divergence Fix 12/26
     # macd, macdsignal, macdhist = MACDFIX(real, signalperiod=9)
 
     # ### MFI - Money Flow Index
+    # typical price = (High + Low + Close)/3
+    # positive_raw_money_flow = positive_typical_price * volume
+    # negtive_raw_money_flow = negtive_typical_price * volume
+    # money_flow_ratio = (positive_raw_money_flow x 14 period)/(negtive_raw_money_flow x 14 period)
+    # money_flow_index = 100 - 100/(1 + money_flow_ratio)
     mfi = MFI(high, low, close, volume, timeperiod=14)
 
     # ### MINUS_DI - Minus Directional Indicator

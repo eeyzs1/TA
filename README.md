@@ -1,6 +1,24 @@
 # TA
 
 
+
+## 准备/preparation
+- 安装/install python3.12
+- 切换到这个库的目录/cd to the directory of this repo
+- pip install requirements.txt
+- pip install ta_lib-0.6.6-cp313-cp313-win_amd64.whl
+- 如果使用了其他版本的python，下载对应的talib的轮子/if using other python version, download corresponding talib whl file
+
+## 使用/how to use
+- 如果只是想选股，直接执行main.ipynb即可，如果因为没有jupyter的kernel而无法执行，vscode可以考虑安装python插件， 其他编辑器可以考虑以下步骤将文件转化为py执行/If you just want to select stocks, you can directly execute main.ipynb. If you cannot execute it because you do not have a Jupyter kernel, you can consider installing the Python extension in VSCode. For other editors, you can follow the steps below to convert the file to a .py executable file：
+    - pip install nbconvert 
+    - jupyter nbconvert --to script *.ipynb
+    - after convert, you can find main.py file, then run "python main.py" should be fine
+- 如果想要增加对talib的理解，可以阅读各个import talib的py文件，z针对每个函数都包含大量注释的为我对talib各个函数含义的解释，如想更进一步理解， 也可以阅读talib的源码，每个函数（XX）都为XX.c格式/If you want to enhance your understanding of talib, you can read the various py files that import talib. Each function contains extensive comments that explain the meaning of each talib function. If you want to further your understanding, you can also read the source code of talib, where each function (XX) is in the XX.c format
+- run.py是老版的量化分析代码，不太好用，已弃用/"run.py" is an old version of quantitative analysis code, which is not very useful and has been deprecated
+
+
+
 # 股票投资评价体系
  
 在股票投资中，一个完善的评价体系对于投资者来说至关重要。以下是一个基于巴菲特投资理念的股票评价体系的示例，它包含了多个关键因子。

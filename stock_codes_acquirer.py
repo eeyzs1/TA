@@ -56,7 +56,7 @@ def acquire_stock_data():
         except Exception as e:
             print(f"无法获取概念板块 {concept} 的股票信息: {e}")
     # # 合并所有概念股票数据
-    all_concept_stocks_df = pd.concat(concept_stock_data)
+    all_concept_stocks_df = pd.concat(concept_stock_data).drop_duplicates(subset=['code'])
 
     # 合并股票代码和概念信息
     merged_df = pd.merge(stock_info_a_code_name_df, all_concept_stocks_df, left_on='code', right_on='代码', how='left')
