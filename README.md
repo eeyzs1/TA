@@ -6,7 +6,7 @@
 - 安装/install python3.12
 - 切换到这个库的目录/cd to the directory of this repo
 - pip install requirements.txt
-- pip install ta_lib-0.6.6-cp313-cp313-win_amd64.whl
+- pip install ta_lib-0.6.6-cp312-cp312-win_amd64.whl
 - 如果使用了其他版本的python，下载对应的talib的轮子/if using other python version, download corresponding talib whl file
 
 ## 使用/how to use
