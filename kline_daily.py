@@ -85,7 +85,7 @@ def stock_zh_a_hist_with_proxy(symbol, start_date="19700101", end_date="20500101
         return temp_df[["日期", "股票代码", "开盘", "收盘", "最高", "最低",
                         "成交量", "成交额", "振幅", "涨跌幅", "涨跌额", "换手率"]]
     except Exception as e:
-        return pd.DataFrame()
+        return None
 
 
 def update_stock_data(code, data_dir, proxy=None):
