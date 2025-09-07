@@ -9,6 +9,7 @@ import time
 from datetime import datetime
 from dateutil.parser import parse
 from tqdm import tqdm
+import logging
 
 def is_trading_day():
     """判断是否为交易日"""
@@ -68,6 +69,7 @@ def stock_zh_a_hist_with_proxy(symbol, start_date="19700101", end_date="20500101
         data_json = r.json()
 
         if not (data_json.get("data") and data_json["data"].get("klines")):
+            logging.error("stock code", symbol,"resp status",r.status_code,"text", r.text)
             return pd.DataFrame()
 
         temp_df = pd.DataFrame([item.split(",") for item in data_json["data"]["klines"]])
@@ -85,6 +87,7 @@ def stock_zh_a_hist_with_proxy(symbol, start_date="19700101", end_date="20500101
         return temp_df[["日期", "股票代码", "开盘", "收盘", "最高", "最低",
                         "成交量", "成交额", "振幅", "涨跌幅", "涨跌额", "换手率"]]
     except Exception as e:
+        logging.critical(e)
         return None
 
 
