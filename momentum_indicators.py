@@ -80,6 +80,13 @@ def calculate_momentum_indicators(open, high, low, close, volume):
     # negtive_raw_money_flow = negtive_typical_price * volume
     # money_flow_ratio = (positive_raw_money_flow x 14 period)/(negtive_raw_money_flow x 14 period)
     # money_flow_index = 100 - 100/(1 + money_flow_ratio)
+    # TYP:=(HIGH+LOW+CLOSE)/3;
+    # V1:=SUM(IF(TYP＞REF(TYP,1),TYP*VOL,0),N)/SUM(IF(TYP＜REF(TYP,1),TYP*VOL,0),N)
+    # MFI:100-(100/(1+V1));
+    # 具体是说：
+    # 1.先计算一定期限内（一般14天）每天的典型价格（即TYP），它是当天最高价，最低价和收盘价三者的均值。也有给收盘价更大权值再算三者均值的算法。
+    # 2.如果当天的典型价格大于昨天的则定义为流入，反之为流出，流入流出金额为典型价格乘以当天交易量。这样把14天每天结果计算出来，然后再把流出额和流入额分别加总，得到14天内的流入总额和流出总额，接着前者除以后者，大于1则14天内的资金为流入，反之为流出。V1就是代表这个比值。
+    # 3.MFI就是在V1的基础上，为了更好地在坐标上显示出来，进行的数据处理。
     mfi = MFI(high, low, close, volume, timeperiod=14)
 
     # ### MINUS_DI - Minus Directional Indicator
