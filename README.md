@@ -17,6 +17,11 @@
 - 如果想要增加对talib的理解，可以阅读各个import talib的py文件，z针对每个函数都包含大量注释的为我对talib各个函数含义的解释，如想更进一步理解， 也可以阅读talib的源码，每个函数（XX）都为XX.c格式/If you want to enhance your understanding of talib, you can read the various py files that import talib. Each function contains extensive comments that explain the meaning of each talib function. If you want to further your understanding, you can also read the source code of talib, where each function (XX) is in the XX.c format
 - run.py是老版的量化分析代码，不太好用，已弃用/"run.py" is an old version of quantitative analysis code, which is not very useful and has been deprecated
 
+## python update requirements.txt and update installed package/更新requirements.txt和已安装模块
+pipreqsnb ./ --encoding=utf8 --force
+pip-review --auto -v 
+pip-review --auto -i https://pypi.tuna.tsinghua.edu.cn/simple  
+pip-review --local --interactive 
 
 
 # 股票投资评价体系
