@@ -16,6 +16,7 @@
     - after convert, you can find main.py file, then run "python main.py" should be fine
 - 如果想要增加对talib的理解，可以阅读各个import talib的py文件，z针对每个函数都包含大量注释的为我对talib各个函数含义的解释，如想更进一步理解， 也可以阅读talib的源码，每个函数（XX）都为XX.c格式/If you want to enhance your understanding of talib, you can read the various py files that import talib. Each function contains extensive comments that explain the meaning of each talib function. If you want to further your understanding, you can also read the source code of talib, where each function (XX) is in the XX.c format
 - run.py是老版的量化分析代码，不太好用，已弃用/"run.py" is an old version of quantitative analysis code, which is not very useful and has been deprecated
+- main_hy_gn.ipynb是尝试用main的量化分析方法，regression.ipynb是用机器学习的方法尝试选出合适的行业或概念，目前看来并不合适，请按照需要修改后再使用...main_hy_gn.ipynb is an attempt to use the quantitative analysis method of main, while regression.ipynb is an attempt to select suitable industries or concepts using machine learning methods. Currently, it seems to be inappropriate. Please modify it as needed before using it...
 
 ## python update requirements.txt and update installed package/更新requirements.txt和已安装模块
 pipreqsnb ./ --encoding=utf8 --force
